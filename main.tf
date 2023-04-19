@@ -6,6 +6,7 @@ variable vpc_cidr_block {}
 variable subnet_cidr_block {}
 variable avail_zone {}
 variable env_prefix {}
+variable my_ip {}
 
 resource "aws_vpc" "sculptsoft-vpc" {
   cidr_block =var.vpc_cidr_block
@@ -45,6 +46,38 @@ resource "aws_route_table" "sculptsoft-route-table" {
 resource "aws_route_table_association" "sculptsoft-rtb-subnet" {
   subnet_id = aws_subnet.sculptsoft-subnet-1.id
   route_table_id = aws_route_table.sculptsoft-route-table.id
+}
+
+resource "aws_security_group" "sculptsoft-gp" {
+  name = "sculptsoft-sg"
+  vpc_id = aws_vpc.sculptsoft-vpc.id
+
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol="tcp"
+    cidr_blocks = [var.my_ip]
+  }
+
+  ingress {
+    from_port = 8080
+    to_port = 8080
+    protocol="tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port = 0
+    to_port = 0
+    protocol="-1"
+    cidr_blocks = ["0.0.0.0/0"]
+    prefix_list_ids = []
+  }
+
+  tags = {
+    Name = "${var.env_prefix}-sg"
+  }
+
 }
 
 output "dev-vpc-id" {
