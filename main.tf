@@ -24,6 +24,12 @@ resource "aws_subnet" "sculptsoft-subnet-1" {
   availability_zone = var.avail_zone
 }
 
+resource "aws_internet_gateway" "sculptsoft-igw" {
+  vpc_id = aws_vpc.sculptsoft-vpc.id
+  tags = {
+    Name = "${var.env_prefix}-igw"
+  }
+}
 
 output "dev-vpc-id" {
   value = aws_vpc.sculptsoft-vpc.id
