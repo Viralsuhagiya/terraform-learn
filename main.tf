@@ -31,6 +31,17 @@ resource "aws_internet_gateway" "sculptsoft-igw" {
   }
 }
 
+resource "aws_route_table" "sculptsoft-route-table" {
+  vpc_id = aws_vpc.sculptsoft-vpc.id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.sculptsoft-igw.id
+  }
+  tags = {
+    Name = "${var.env_prefix}-route-table"
+  }
+}
+
 output "dev-vpc-id" {
   value = aws_vpc.sculptsoft-vpc.id
 }
