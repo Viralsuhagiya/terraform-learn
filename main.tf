@@ -2,15 +2,6 @@ provider "aws" {
   region = "us-east-1"
 }
 
-variable vpc_cidr_block {}
-variable subnet_cidr_block {}
-variable avail_zone {}
-variable env_prefix {}
-variable my_ip {}
-variable instance_type {}
-variable public_key_location {}
-variable ami {}
-
 resource "aws_vpc" "sculptsoft-vpc" {
   cidr_block =var.vpc_cidr_block
   tags = {
@@ -108,17 +99,4 @@ resource "aws_instance" "sculptsoft-server" {
   tags = {
     Name = "${var.env_prefix}-server"
   }
-}
-
-output "dev-vpc-id" {
-  value = aws_vpc.sculptsoft-vpc.id
-}
-
-output "dev-subnet-id" {
-  value = aws_subnet.sculptsoft-subnet-1
-}
-
-
-output "ec2_public_ip" {
-  value = aws_instance.sculptsoft-server.public_ip
 }
