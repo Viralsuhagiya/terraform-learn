@@ -2,31 +2,31 @@ provider "aws" {
   region = "us-east-1"
 }
 
-resource "aws_vpc" "sculptsoft-vpc" {
-  cidr_block =var.vpc_cidr_block
+#Copy from https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/latest
+module "vpc" {
+  source = "terraform-aws-modules/vpc/aws"
+
+  name = "sculptsoft-existing-vpc"
+  cidr = var.vpc_cidr_block
+
+  azs             = [var.avail_zone]
+  public_subnets  = [var.subnet_cidr_block]
+  public_subnet_tags = {Name:"${var.env_prefix}-subnet-1"}
+
   tags = {
     Name = "${var.env_prefix}-vpc"
-    vpc_env = var.env_prefix
   }
 }
 
-module "sculptsoft-subnet" {
-  source = "./modules/subnet"
-  subnet_cidr_block=var.subnet_cidr_block
-  avail_zone=var.avail_zone
-  env_prefix=var.env_prefix
-  vpc_id=aws_vpc.sculptsoft-vpc.id
-  default_route_table_id=aws_vpc.sculptsoft-vpc.default_route_table_id
-}
-
+#Find VPC ID from #https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/latest?tab=outputs
 module "sculptsoft-webserver" {
   source = "./modules/webserver"
   env_prefix = var.env_prefix
-  vpc_id = aws_vpc.sculptsoft-vpc.id
+  vpc_id = module.vpc.vpc_id
   my_ip = var.my_ip
   public_key_location = var.public_key_location
   image_name = var.image_name
   instance_type = var.instance_type
-  subnet_id = module.sculptsoft-subnet.subnet.id
+  subnet_id = module.vpc.public_subnets[0]
   avail_zone = var.avail_zone
 }

@@ -1,5 +1,5 @@
 output "VPCID" {
-  value = aws_vpc.sculptsoft-vpc.id
+  value = module.vpc.vpc_id
 }
 
 output "ec2_public_ip" {
