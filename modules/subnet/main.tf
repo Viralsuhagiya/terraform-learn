@@ -28,5 +28,5 @@ resource "aws_route_table" "sculptsoft-route-table" {
 
 resource "aws_route_table_association" "sculptsoft-rtb-subnet" {
   subnet_id = aws_subnet.sculptsoft-subnet-1.id
-  route_table_id = var.default_route_table_id
+  route_table_id = aws_route_table.sculptsoft-route-table.id
 }
