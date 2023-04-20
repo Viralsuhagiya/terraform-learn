@@ -9,6 +9,7 @@ variable env_prefix {}
 variable my_ip {}
 variable instance_type {}
 variable public_key_location {}
+variable private_key_location {}
 variable ami {}
 
 resource "aws_vpc" "sculptsoft-vpc" {
@@ -103,8 +104,28 @@ resource "aws_instance" "sculptsoft-server" {
   associate_public_ip_address = true
   key_name = aws_key_pair.ssh-key.key_name
 
-  user_data = file("entry_script.sh")
+  # user_data = file("entry_script.sh")
 
+  connection {
+    type = "ssh"
+    host = self.public_ip
+    user = "ubuntu"
+    private_key = file(var.private_key_location)
+  }
+  
+  provisioner "file" {
+    source = "enry_point.sh"
+    destination = "/home/ubuntu/entry-script-on-ec2.sh"
+  }
+
+  provisioner "remote-exec" {
+    script = file("entry-script-on-ec2.sh")
+  }
+
+  provisioner "local-exec" {
+    command = "echo ${self.public_ip} > output.txt"
+  }
+  
   tags = {
     Name = "${var.env_prefix}-server"
   }
